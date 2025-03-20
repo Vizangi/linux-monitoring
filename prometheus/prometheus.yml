@@ -1,0 +1,77 @@
+---
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - '192.168.31.42:9093'
+
+
+rule_files:
+  - "/opt/linux_monitoring/alertmanager/alert.rules.yml"
+
+scrape_configs:
+
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: 'federation-DC1'
+    metrics_path: '/federate'
+    params:
+      'match[]':
+        - '{job="node-exporter"}'
+        - '{__name__=~"up|process_cpu_usage"}'
+    static_configs:
+      - targets:
+          - '192.168.31.95:9090'
+
+  - job_name: 'federation-DC2'
+    metrics_path: '/federate'
+    params:
+      'match[]':
+        - '{job="node-exporter"}'
+        - '{__name__=~"up|process_cpu_usage"}'
+    static_configs:
+      - targets:
+          - '192.168.31.30:9090'
+
+  - job_name: "node_exporter_textfile"
+    static_configs:
+      - targets: ['localhost:9100']
+    metrics_path: "/metrics"
+
+  - job_name: "pushgateway"
+    honor_labels: true
+    static_configs:
+      - targets:
+          - '192.168.31.42:9091'
+
+  - job_name: "process_exporter"
+    static_configs:
+      - targets:
+          - '192.168.31.42:9256'
+
+  - job_name: "blackbox_exporter_https"
+    metrics_path: /probe
+    params:
+      module: [https_2xx]
+    static_configs:
+      - targets:
+          - https://vk.com
+          - https://google.com
+          - https://yandex.ru
+          - https://grafana.com
+          - https://mail.ru
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: []
+        target_label: __address__
+        replacement: '192.168.31.42:9115'
+      - source_labels: []
+        target_label: __param_module
+        replacement: https_2xx

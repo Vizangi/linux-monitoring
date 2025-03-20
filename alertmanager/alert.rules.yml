@@ -1,0 +1,28 @@
+groups:
+  - name: cpu_alerts
+    rules:
+      - alert: HighCpuLoad
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100) > 80
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High CPU load on {{ $labels.instanсe }}"
+          description: "CPU load is above 80% for more than 1 minute."
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes) / node_memory_MemTotal_bytes * 100 > 80
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 80% for more than 1 minute."
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_size_bytes{fstype!="tmpfs"} - node_filesystem_free_bytes{fstype!="tmpfs"}) / node_filesystem_size_bytes{fstype!="tmpfs"} * 100 > 85
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on {{ $labels.device }}"
+          description: "Disk space usage is above 85% for more than 1 minute."

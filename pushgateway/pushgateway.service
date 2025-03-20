@@ -1,0 +1,12 @@
+[Unit]
+Description=Prometheus Pushgateway
+After=network.target
+
+[Service]
+User=prometheus
+Group=prometheus
+ExecStart=/opt/linux_monitoring/pushgateway/pushgateway
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

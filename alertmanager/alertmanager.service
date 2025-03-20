@@ -1,0 +1,15 @@
+[Unit]
+Description=Alertmanager
+After=network.target
+
+[Service]
+User=prometheus
+Group=prometheus
+WorkingDirectory=/opt/linux_monitoring/alertmanager
+ExecStart=/opt/linux_monitoring/alertmanager/alertmanager \
+  --config.file=/opt/linux_monitoring/alertmanager/alertmanager.yml \
+  --storage.path=/opt/linux_monitoring/alertmanager/data
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
